@@ -1,3 +1,4 @@
+
 resource "vultr_instance" "hugo" {
   plan              = var.plan
   region            = var.region
@@ -28,7 +29,7 @@ resource "vultr_startup_script" "startup" {
 }
 
 resource "cloudflare_record" "public" {
-  zone_id = var.cloudflare_zone_id
+  zone_id = var.zone_id
   name    = var.hostname
   value   = vultr_instance.hugo.main_ip
   type    = var.domain_type

@@ -1,4 +1,4 @@
-variable "cloudflare_zone_id" {
+variable "zone_id" {
   description = "Cloudflare Zone ID Number"
   type        = string
 }
@@ -8,7 +8,7 @@ variable "cloudflare_email" {
   type        = string
 }
 
-variable "cloudflare_api_token" {
+variable "cloudflare_api_key" {
   description = "Cloudflare Zone ID Number"
   type        = string
 }

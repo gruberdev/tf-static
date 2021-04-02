@@ -16,6 +16,7 @@ terraform {
   }
 }
 
+
 provider "vultr" {
   api_key     = var.vultr_token
   rate_limit  = 650
@@ -24,5 +25,5 @@ provider "vultr" {
 
 provider "cloudflare" {
   email   = var.cloudflare_email
-  api_key = var.cloudflare_api_token
+  api_key = var.cloudflare_api_key
 }
