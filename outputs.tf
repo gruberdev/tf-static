@@ -1,4 +1,3 @@
-output "output_name" {
-  value       = "value"
-  description = "description for output_name"
+output "instance_ip" {
+  value = vultr_instance.hugo.main_ip
 }
