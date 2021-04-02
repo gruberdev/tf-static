@@ -1,0 +1,69 @@
+default:
+  image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+
+  cache:
+    key: example-production
+    paths:
+      - ${TF_ROOT}/.terraform
+
+variables:
+  TF_ROOT: ${CI_PROJECT_DIR}/environments/example/production
+  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/example-production
+
+before_script:
+  - cd ${TF_ROOT}
+
+stages:
+  - init
+  - test
+  - build
+  - deploy
+  - post_deploy
+
+modules:
+  stage: init
+  script:
+    - gitlab-terraform init
+
+validate:
+  stage: test
+  script:
+    - gitlab-terraform validate
+
+plan:
+  stage: build
+  script:
+    - gitlab-terraform plan
+    - gitlab-terraform plan-json
+  artifacts:
+    name: plan
+    paths:
+      - ${TF_ROOT}/plan.cache
+    reports:
+      terraform: ${TF_ROOT}/plan.json
+
+apply:
+  stage: deploy
+  environment:
+    name: production
+  script:
+    - gitlab-terraform apply
+  dependencies:
+    - plan
+  when: manual
+  only:
+    - master
+
+docs:
+  stage: post_deploy
+  variables:
+    GITHUB_EVENT: ${GITHUB_EVENT} #generate-documentation
+    GITHUB_PATH: ${GITHUB_PATH} #gruberdev/static
+    #GITHUB_TOKEN is a protected Variable set at Gitlab's CI/CD configuration
+  script:
+    - |
+      curl -H "Accept: application/vnd.github.everest-preview+json" \
+      -H "Authorization: token ${GITHUB_TOKEN}" \
+      --request POST \
+      --data '{"event_type": "${GITHUB_EVENT}"}' \
+      https://api.github.com/repos/${GITHUB_PATH}/dispatches
