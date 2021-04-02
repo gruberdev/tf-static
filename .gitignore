@@ -3,3 +3,7 @@ terraform.tfstate
 *.tfstate*
 terraform.tfvars
 *.backup
+.vscode
+.gitlab-ci-local
+.env
+.terraform.lock.hcl
