@@ -4,14 +4,14 @@ default:
   cache:
     key: example-production
     paths:
-      - ${TF_ROOT}/.terraform
+      - .terraform
 
-variables:
-  TF_ROOT: ${CI_PROJECT_DIR}/environments/example/production
-  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/example-production
+#variables:
+#  TF_ROOT: ${CI_PROJECT_DIR}/environments/example/production
+#  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/example-production
 
-before_script:
-  - cd ${TF_ROOT}
+#before_script:
+#  - cd ${TF_ROOT}
 
 stages:
   - init
@@ -38,9 +38,9 @@ plan:
   artifacts:
     name: plan
     paths:
-      - ${TF_ROOT}/plan.cache
+      - plan.cache
     reports:
-      terraform: ${TF_ROOT}/plan.json
+      terraform: plan.json
 
 apply:
   stage: deploy
