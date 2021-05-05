@@ -21,7 +21,7 @@ before_script:
   - export	TF_VAR_domain_type=${TF_VAR_domain_type}
   - export	TF_VAR_hostname=${TF_VAR_hostname}
   - export	TF_VAR_label=${TF_VAR_label}
-  - export	TF_VAR_os=${TF_VAR_os}
+  - export	TF_VAR_os=244
   - export	TF_VAR_plan=${TF_VAR_plan}
   - export	TF_VAR_region=${TF_VAR_region}
   - export	TF_VAR_ttl=${TF_VAR_ttl}
