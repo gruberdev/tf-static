@@ -33,23 +33,16 @@ validate:
 plan:
   stage: build
   script:
-    - gitlab-terraform plan
-    - gitlab-terraform plan-json
-  artifacts:
-    name: plan
-    paths:
-      - plan.cache
-    reports:
-      terraform: plan.json
+    - apt-get update && apt-get install -yq wget
+    - wget https://github.com/cloudposse/tfmask/releases/download/0.7.0/tfmask_linux_amd64 && mv tfmask_linux_amd64 /usr/local/bin/tfmask
+    - gitlab-terraform plan -no-color | tfmask
 
 apply:
   stage: deploy
   environment:
     name: production
   script:
-    - gitlab-terraform apply
-  dependencies:
-    - plan
+    - gitlab-terraform apply -no-color | tfmask
   when: manual
   only:
     - master
