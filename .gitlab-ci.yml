@@ -14,8 +14,22 @@ variables:
 #  TF_ROOT: ${CI_PROJECT_DIR}/environments/example/production
 #  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/example-production
 
-#before_script:
-#  - cd ${TF_ROOT}
+before_script:
+  - export	TF_VAR_cloudflare_api_key=${TF_VAR_cloudflare_api_key}
+  - export	TF_VAR_cloudflare_email=${TF_VAR_cloudflare_email}
+  - export	TF_VAR_cloudflare_api_key=${TF_VAR_cloudflare_api_key}
+  - export	TF_VAR_domain_type=${TF_VAR_domain_type}
+  - export	TF_VAR_hostname=${TF_VAR_hostname}
+  - export	TF_VAR_label=${TF_VAR_label}
+  - export	TF_VAR_os=${TF_VAR_os}
+  - export	TF_VAR_plan=${TF_VAR_plan}
+  - export	TF_VAR_region=${TF_VAR_region}
+  - export	TF_VAR_ttl=${TF_VAR_ttl}
+  - export	TF_VAR_vultr_ssh_key=${TF_VAR_vultr_ssh_key}
+  - export	TF_VAR_vultr_token=${TF_VAR_vultr_token}
+  - export	TF_VAR_zone_id=${TF_VAR_zone_id}
+  - export	TF_VAR_TFMASK_CHAR=${TF_VAR_TFMASK_CHAR}
+  - export	TF_VAR_TFMASK_VALUES_REGEX=${TF_VAR_TFMASK_VALUES_REGEX}
 
 stages:
   - init
