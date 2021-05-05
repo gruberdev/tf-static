@@ -37,8 +37,8 @@ validate:
 plan:
   stage: build
   script:
-    - apk update && apk add wget
-    - wget ${TFMASK_URL} && chmod +x tfmask && mv tfmask_linux_amd64 /usr/local/bin/tfmask
+    - apk -q update && apk -q add wget
+    - wget -q ${TFMASK_URL} && chmod +x tfmask_${TFMASK_OS}_${TFMASK_ARCH} && mv tfmask_${TFMASK_OS}_${TFMASK_ARCH} /usr/local/bin/tfmask
     - gitlab-terraform plan -no-color | tfmask
 
 apply:
