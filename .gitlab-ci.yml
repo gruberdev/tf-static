@@ -6,7 +6,11 @@ default:
     paths:
       - .terraform
 
-#variables:
+variables:
+  TFMASK_VERSION: "0.7.0"
+  TFMASK_ARCH: "amd64"
+  TFMASK_OS: "linux"
+  TFMASK_URL: "https://github.com/cloudposse/tfmask/releases/download/${TFMASK_VERSION}/tfmask_${TFMASK_OS}_${TFMASK_ARCH}"
 #  TF_ROOT: ${CI_PROJECT_DIR}/environments/example/production
 #  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/example-production
 
@@ -34,7 +38,7 @@ plan:
   stage: build
   script:
     - apt-get update && apt-get install -yq wget
-    - wget https://github.com/cloudposse/tfmask/releases/download/0.7.0/tfmask_linux_amd64 && mv tfmask_linux_amd64 /usr/local/bin/tfmask
+    - wget ${TFMASK_URL} && mv tfmask_linux_amd64 /usr/local/bin/tfmask
     - gitlab-terraform plan -no-color | tfmask
 
 apply:
