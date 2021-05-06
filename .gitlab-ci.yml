@@ -50,6 +50,7 @@ plan:
     - export	TF_VAR_ttl=$TF_VAR_ttl
     - export	TF_VAR_vultr_token=$TF_VAR_vultr_token
     - export  VULTR_API_KEY=$TF_VAR_vultr_token
+    - export  TF_VULTR_API_KEY=$TF_VAR_vultr_token
     - export	TF_VAR_zone_id=$TF_VAR_zone_id
     - export	TF_VAR_TFMASK_CHAR=$TF_VAR_TFMASK_CHAR
     - export	TF_VAR_TFMASK_VALUES_REGEX=$TF_VAR_TFMASK_VALUES_REGEX
