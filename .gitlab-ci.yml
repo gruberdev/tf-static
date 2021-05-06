@@ -16,46 +16,43 @@ variables:
 #  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/example-production
 
 before_script:
-  - apk update && apk add bash curl unzip zip jq brotli openssh openssl wget
+  - apk -q update -q && apk add -q bash curl unzip zip jq brotli openssh openssl wget
   - bash
-  - export	TF_VAR_cloudflare_api_key=${TF_VAR_cloudflare_api_key}
-  - export	TF_VAR_cloudflare_email=${TF_VAR_cloudflare_email}
-  - export	TF_VAR_domain_type=${TF_VAR_domain_type}
-  - export	TF_VAR_hostname=${TF_VAR_hostname}
-  - export	TF_VAR_label=${TF_VAR_label}
-  - export	TF_VAR_os=244
-  - export	TF_VAR_plan=${TF_VAR_plan}
-  - export	TF_VAR_region=${TF_VAR_region}
-  - export	TF_VAR_ttl=${TF_VAR_ttl}
-  - export	TF_VAR_vultr_token=${TF_VAR_vultr_token}
-  - export  VULTR_API_KEY="${TF_VAR_vultr_token}"
-  - export	TF_VAR_zone_id=${TF_VAR_zone_id}
-  - export	TF_VAR_TFMASK_CHAR=${TF_VAR_TFMASK_CHAR}
-  - export	TF_VAR_TFMASK_VALUES_REGEX=${TF_VAR_TFMASK_VALUES_REGEX}
   - wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-  - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /bin
+  - unzip -q terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /bin
   - rm -f terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+  - terraform -q init
 
 stages:
-  - init
   - test
   - build
   - deploy
   - post_deploy
 
-modules:
-  stage: init
-  script:
-    - terraform init
-
 validate:
   stage: test
   script:
+    - echo ${vultr_ssh_key} > sshkey.pub
     - terraform validate
+    - rm sshkey.pub || true
 
 plan:
   stage: build
   script:
+    - export	TF_VAR_cloudflare_api_key=$TF_VAR_cloudflare_api_key
+    - export	TF_VAR_cloudflare_email=$TF_VAR_cloudflare_email
+    - export	TF_VAR_domain_type=$TF_VAR_domain_type
+    - export	TF_VAR_hostname=$TF_VAR_hostname
+    - export	TF_VAR_label=$TF_VAR_label
+    - export	TF_VAR_os=244
+    - export	TF_VAR_plan=$TF_VAR_plan
+    - export	TF_VAR_region=$TF_VAR_region
+    - export	TF_VAR_ttl=$TF_VAR_ttl
+    - export	TF_VAR_vultr_token=$TF_VAR_vultr_token
+    - export  VULTR_API_KEY=$TF_VAR_vultr_token
+    - export	TF_VAR_zone_id=$TF_VAR_zone_id
+    - export	TF_VAR_TFMASK_CHAR=$TF_VAR_TFMASK_CHAR
+    - export	TF_VAR_TFMASK_VALUES_REGEX=$TF_VAR_TFMASK_VALUES_REGEX
     - echo ${vultr_ssh_key} > sshkey.pub
     - apk -q update && apk -q add wget
     - wget -q ${TFMASK_URL} && chmod +x tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH} && mv tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH} /usr/local/bin/tfmask
