@@ -23,14 +23,14 @@ before_script:
   - terraform init
 
 stages:
-  - image
+  - construct
   - test
   - build
   - deploy
   - post_deploy
 
 builder:
-  stage: image
+  stage: construct
   image: docker:20.10.6
   services:
     - docker:20.10.6-dind
@@ -44,7 +44,7 @@ builder:
       when: never
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "push"'
       when: always
     - when: never
 
