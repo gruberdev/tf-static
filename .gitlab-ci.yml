@@ -11,27 +11,27 @@ variables:
   TFMASK_ARCH: "amd64"
   TFMASK_OS: "linux"
   TFMASK_URL: "https://github.com/cloudposse/tfmask/releases/download/${TFMASK_VERSION}/tfmask_${TFMASK_OS}_${TFMASK_ARCH}"
-#  TF_ROOT: ${CI_PROJECT_DIR}/environments/example/production
+#  TF_ROOT: ${CI_PROJECT_DIR}
 #  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/example-production
 
 before_script:
-  - export	TF_VAR_cloudflare_api_key="${TF_VAR_cloudflare_api_key}"
-  - export	TF_VAR_cloudflare_email="${TF_VAR_cloudflare_email}"
-  - export	TF_VAR_domain_type="${TF_VAR_domain_type}"
-  - export	TF_VAR_hostname="${TF_VAR_hostname}"
-  - export	TF_VAR_label="${TF_VAR_label}"
+  - export	TF_VAR_cloudflare_api_key=${TF_VAR_cloudflare_api_key}
+  - export	TF_VAR_cloudflare_email=${TF_VAR_cloudflare_email}
+  - export	TF_VAR_domain_type=${TF_VAR_domain_type}
+  - export	TF_VAR_hostname=${TF_VAR_hostname}
+  - export	TF_VAR_label=${TF_VAR_label}
   - export	TF_VAR_os=244
-  - export	TF_VAR_plan="${TF_VAR_plan}"
-  - export	TF_VAR_region="{TF_VAR_region}"
-  - export	TF_VAR_ttl="${TF_VAR_ttl}"
-  - echo    "$vultr_ssh_key" > "$(pwd)/sshkey.pub"
-  - export	TF_VAR_vultr_token="${TF_VAR_vultr_token}"
-  - export	TF_VAR_zone_id="${TF_VAR_zone_id}"
-  - export	TF_VAR_TFMASK_CHAR="${TF_VAR_TFMASK_CHAR}"
-  - export	TF_VAR_TFMASK_VALUES_REGEX="${TF_VAR_TFMASK_VALUES_REGEX}"
+  - export	TF_VAR_plan=${TF_VAR_plan}
+  - export	TF_VAR_region=${TF_VAR_region}
+  - export	TF_VAR_ttl=${TF_VAR_ttl}
+  - export	TF_VAR_vultr_token=${TF_VAR_vultr_token}
+  - export	TF_VAR_zone_id=${TF_VAR_zone_id}
+  - export	TF_VAR_TFMASK_CHAR=${TF_VAR_TFMASK_CHAR}
+  - export	TF_VAR_TFMASK_VALUES_REGEX=${TF_VAR_TFMASK_VALUES_REGEX}
+  - echo ${vultr_ssh_key} > ${CI_PROJECT_DIR}/sshkey.pub
 
 after_script:
-  - rm $(pwd)/sshkey.pub || true
+  - rm ${CI_PROJECT_DIR}/sshkey.pub || true
 
 stages:
   - init
@@ -55,7 +55,7 @@ plan:
   script:
     - apk -q update && apk -q add wget
     - wget -q ${TFMASK_URL} && chmod +x tfmask_${TFMASK_OS}_${TFMASK_ARCH} && mv tfmask_${TFMASK_OS}_${TFMASK_ARCH} /usr/local/bin/tfmask
-    - gitlab-terraform plan -no-color | tfmask
+    - gitlab-terraform plan -no-color #| tfmask
 
 apply:
   stage: deploy

@@ -8,3 +8,4 @@ terraform.tfvars
 .env
 .terraform.lock.hcl
 tfmask
+sshkey.pub
