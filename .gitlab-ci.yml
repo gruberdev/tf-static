@@ -39,14 +39,6 @@ builder:
     - docker pull $RECENT_IMG || true
     - docker build -f docker/Dockerfile.validate --cache-from $RECENT_IMG --tag $RECENT_IMG .
     - docker push $RECENT_IMG
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-      when: always
-    - when: never
 
 init:
   image: alpine:${ALPINE_VERSION}
