@@ -26,8 +26,7 @@ curl -s https://グルーバー.com/terraform.sh | bash
 go test
 ```
 
-
-----
+---
 
 <br>
 

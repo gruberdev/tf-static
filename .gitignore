@@ -9,3 +9,4 @@ terraform.tfvars
 .terraform.lock.hcl
 tfmask
 sshkey.pub
+.gitlab-ci-local

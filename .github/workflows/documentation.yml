@@ -16,4 +16,3 @@ jobs:
           tf_docs_output_file: USAGE.md
           tf_docs_output_method: inject
           tf_docs_git_push: "true"
-

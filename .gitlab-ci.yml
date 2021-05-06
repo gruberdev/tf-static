@@ -7,34 +7,61 @@ default:
       - .terraform
 
 variables:
+  COMMIT_IMG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  RECENT_IMG: $CI_REGISTRY_IMAGE:latest
+
   TFMASK_VERSION: "0.7.0"
   TERRAFORM_VERSION: "0.15.2"
   TERRAFORM_ARCH: "amd64"
   TERRAFORM_OS: "linux"
   TFMASK_URL: "https://github.com/cloudposse/tfmask/releases/download/${TFMASK_VERSION}/tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH}"
-#  TF_ROOT: ${CI_PROJECT_DIR}
-#  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/example-production
+  TERRAFORM_URL: "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
 
 before_script:
   - apk -q update -q && apk add -q bash curl unzip zip jq brotli openssh openssl wget
-  - bash
-  - wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+  - wget -q ${TERRAFORM_URL}
   - unzip -q terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /bin
   - rm -f terraform_${TERRAFORM_VERSION}_linux_amd64.zip
   - terraform init
 
 stages:
+  - image
   - test
   - build
   - deploy
   - post_deploy
 
-validate:
+builder:
+  stage: image
+  image: docker:20.10.6
+  services:
+    - docker:20.10.6-dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $RECENT_IMG || true
+    - docker build --cache-from $RECENT_IMG --tag $RECENT_IMG .
+    - docker push $RECENT_IMG
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "main"'
+      when: always
+    - when: never
+
+init:
   stage: test
   script:
+    - terraform init
     - echo ${vultr_ssh_key} > sshkey.pub
     - terraform validate
     - rm sshkey.pub || true
+
+tf-hooks:
+  stage: test
+  script:
+    - pre-commit -a
 
 plan:
   stage: build
@@ -64,7 +91,25 @@ apply:
   environment:
     name: production
   script:
+    - export	TF_VAR_cloudflare_api_key=${TF_VAR_cloudflare_api_key}
+    - export	TF_VAR_cloudflare_email=$TF_VAR_cloudflare_email
+    - export	TF_VAR_domain_type=$TF_VAR_domain_type
+    - export	TF_VAR_hostname=$TF_VAR_hostname
+    - export	TF_VAR_label=$TF_VAR_label
+    - export	TF_VAR_os=244
+    - export	TF_VAR_plan=$TF_VAR_plan
+    - export	TF_VAR_region=$TF_VAR_region
+    - export	TF_VAR_ttl=$TF_VAR_ttl
+    - export	TF_VAR_vultr_token=$TF_VAR_vultr_token
+    - export  VULTR_API_KEY=$TF_VAR_vultr_token
+    - export  TF_VULTR_API_KEY=$TF_VAR_vultr_token
+    - export	TF_VAR_zone_id=$TF_VAR_zone_id
+    - export	TF_VAR_TFMASK_CHAR=$TF_VAR_TFMASK_CHAR
+    - export	TF_VAR_TFMASK_VALUES_REGEX=$TF_VAR_TFMASK_VALUES_REGEX
+    - echo ${vultr_ssh_key} > sshkey.pub
+    - wget -q ${TFMASK_URL} && chmod +x tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH} && mv tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH} /usr/local/bin/tfmask
     - terraform apply -no-color | tfmask
+    - rm sshkey.pub || true
   when: manual
   only:
     - master
