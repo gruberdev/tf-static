@@ -8,14 +8,15 @@ default:
 
 variables:
   TFMASK_VERSION: "0.7.0"
-  TFMASK_ARCH: "amd64"
-  TFMASK_OS: "linux"
-  TFMASK_URL: "https://github.com/cloudposse/tfmask/releases/download/${TFMASK_VERSION}/tfmask_${TFMASK_OS}_${TFMASK_ARCH}"
+  TERRAFORM_VERSION: "0.15.2"
+  TERRAFORM_ARCH: "amd64"
+  TERRAFORM_OS: "linux"
+  TFMASK_URL: "https://github.com/cloudposse/tfmask/releases/download/${TFMASK_VERSION}/tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH}"
 #  TF_ROOT: ${CI_PROJECT_DIR}
 #  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/example-production
 
 before_script:
-  - apk update && apk add sh bash
+  - apk update && apk add bash curl unzip zip jq brotli openssh openssl wget
   - bash
   - export	TF_VAR_cloudflare_api_key=${TF_VAR_cloudflare_api_key}
   - export	TF_VAR_cloudflare_email=${TF_VAR_cloudflare_email}
@@ -31,10 +32,9 @@ before_script:
   - export	TF_VAR_zone_id=${TF_VAR_zone_id}
   - export	TF_VAR_TFMASK_CHAR=${TF_VAR_TFMASK_CHAR}
   - export	TF_VAR_TFMASK_VALUES_REGEX=${TF_VAR_TFMASK_VALUES_REGEX}
-  - echo ${vultr_ssh_key} > ${CI_PROJECT_DIR}/sshkey.pub
-
-after_script:
-  - rm ${CI_PROJECT_DIR}/sshkey.pub || true
+  - wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+  - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /bin
+  - rm -f terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 stages:
   - init
@@ -46,21 +46,6 @@ stages:
 modules:
   stage: init
   script:
-    - apk --update add --no-cache openssh openssl bash curl jq zip gzip brotli \
-      && git --version \
-      && ssh -V \
-      && openssl version \
-      && bash --version \
-      && curl --version \
-      && jq --version \
-      && zip --version \
-      && gzip --version \
-      && brotli --version
-    - curl https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip > terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-    - echo "${TERRAFORM_SHA256SUM}  terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > terraform_${TERRAFORM_VERSION}_SHA256SUMS
-    - sha256sum -cs terraform_${TERRAFORM_VERSION}_SHA256SUMS
-    - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /bin
-    - rm -f terraform_${TERRAFORM_VERSION}_linux_amd64.zip
     - terraform init
 
 validate:
@@ -71,9 +56,11 @@ validate:
 plan:
   stage: build
   script:
+    - echo ${vultr_ssh_key} > sshkey.pub
     - apk -q update && apk -q add wget
-    - wget -q ${TFMASK_URL} && chmod +x tfmask_${TFMASK_OS}_${TFMASK_ARCH} && mv tfmask_${TFMASK_OS}_${TFMASK_ARCH} /usr/local/bin/tfmask
+    - wget -q ${TFMASK_URL} && chmod +x tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH} && mv tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH} /usr/local/bin/tfmask
     - terraform plan -no-color #| tfmask
+    - rm sshkey.pub || true
 
 apply:
   stage: deploy
