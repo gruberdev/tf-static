@@ -18,13 +18,13 @@ resource "vultr_instance" "hugo" {
   ]
 }
 resource "vultr_ssh_key" "my_user" {
-  name    = "Root SSH key"
+  name    = "SSH key"
   ssh_key = file("sshkey.pub")
 }
 
 resource "vultr_startup_script" "startup" {
   name   = "boot_script"
-  script = filebase64("boot_script.sh")
+  script = filebase64("scripts/boot_script.sh")
   type   = "boot"
 }
 
