@@ -7,6 +7,7 @@ variables:
   TERRAFORM_ARCH: "amd64"
   TERRAFORM_OS: "linux"
   ALPINE_VERSION: "3.13.5"
+  DOCKER_VERSION: "20.10.6"
   TFMASK_URL: "https://github.com/cloudposse/tfmask/releases/download/${TFMASK_VERSION}/tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH}"
   TERRAFORM_URL: "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
 
@@ -31,9 +32,9 @@ stages:
 
 builder:
   stage: construct
-  image: docker:20.10.6
+  image: docker:${DOCKER_VERSION}
   services:
-    - docker:20.10.6-dind
+    - docker:${DOCKER_VERSION}
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker pull $RECENT_IMG || true
@@ -50,10 +51,12 @@ init:
     - rm sshkey.pub || true
 
 tf-hooks:
-  image: ${RECENT_IMG}
+  image: docker:${DOCKER_VERSION}
+  services:
+    - docker:${DOCKER_VERSION}-dind
   stage: test
   script:
-    - pre-commit -a
+    - docker run -v $(pwd):/lint -w /lint pre-commit run -a
 
 plan:
   image: alpine:${ALPINE_VERSION}
