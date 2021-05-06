@@ -58,7 +58,7 @@ init:
     - rm sshkey.pub || true
 
 tf-hooks:
-  image: alpine:${ALPINE_VERSION}
+  image: ${RECENT_IMG}
   stage: test
   script:
     - pre-commit -a
