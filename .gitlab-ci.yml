@@ -21,7 +21,7 @@ before_script:
   - wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
   - unzip -q terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /bin
   - rm -f terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-  - terraform -q init
+  - terraform init
 
 stages:
   - test
