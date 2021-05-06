@@ -39,7 +39,7 @@ validate:
 plan:
   stage: build
   script:
-    - export	TF_VAR_cloudflare_api_key=$TF_VAR_cloudflare_api_key
+    - export	TF_VAR_cloudflare_api_key=${TF_VAR_cloudflare_api_key}
     - export	TF_VAR_cloudflare_email=$TF_VAR_cloudflare_email
     - export	TF_VAR_domain_type=$TF_VAR_domain_type
     - export	TF_VAR_hostname=$TF_VAR_hostname
