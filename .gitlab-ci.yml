@@ -7,7 +7,8 @@ variables:
   TERRAFORM_ARCH: "amd64"
   TERRAFORM_OS: "linux"
   ALPINE_VERSION: "3.13.5"
-  DOCKER_VERSION: "20.10.6"
+  DOCKER_VERSION: "19.03.13"
+  DOCKER_TLS_CERTDIR: ""
   TFMASK_URL: "https://github.com/cloudposse/tfmask/releases/download/${TFMASK_VERSION}/tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH}"
   TERRAFORM_URL: "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
 
