@@ -1,5 +1,5 @@
 default:
-  image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+  image: hashicorp/terraform:0.15.2
 
   cache:
     key: example-production
@@ -44,19 +44,29 @@ stages:
 modules:
   stage: init
   script:
-    - gitlab-terraform init
+    - apk --update add --no-cache openssh openssl bash curl jq zip gzip brotli \
+      && git --version \
+      && ssh -V \
+      && openssl version \
+      && bash --version \
+      && curl --version \
+      && jq --version \
+      && zip --version \
+      && gzip --version \
+      && brotli --version
+    - terraform init
 
 validate:
   stage: test
   script:
-    - gitlab-terraform validate
+    - terraform validate
 
 plan:
   stage: build
   script:
     - apk -q update && apk -q add wget
     - wget -q ${TFMASK_URL} && chmod +x tfmask_${TFMASK_OS}_${TFMASK_ARCH} && mv tfmask_${TFMASK_OS}_${TFMASK_ARCH} /usr/local/bin/tfmask
-    - gitlab-terraform plan -no-color #| tfmask
+    - terraform plan -no-color #| tfmask
 
 apply:
   stage: deploy
