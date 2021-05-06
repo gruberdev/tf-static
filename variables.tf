@@ -18,11 +18,6 @@ variable "vultr_token" {
   type        = string
 }
 
-variable "vultr_ssh_key" {
-  description = "Vultr API token"
-  type        = string
-}
-
 variable "os" {
   description = "Vultr OS"
   type        = string

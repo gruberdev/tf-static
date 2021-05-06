@@ -18,8 +18,8 @@ resource "vultr_instance" "hugo" {
   ]
 }
 resource "vultr_ssh_key" "my_user" {
-  name    = "Root SSH key"
-  ssh_key = var.vultr_ssh_key
+  name    = "SSH key"
+  ssh_key = file("sshkey.pub")
 }
 
 resource "vultr_startup_script" "startup" {
