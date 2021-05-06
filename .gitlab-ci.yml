@@ -7,10 +7,14 @@ variables:
   TERRAFORM_ARCH: "amd64"
   TERRAFORM_OS: "linux"
   ALPINE_VERSION: "3.13.5"
-  DOCKER_VERSION: "19.03.13"
+  DOCKER_VERSION: "19.03.0"
+  DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
   TFMASK_URL: "https://github.com/cloudposse/tfmask/releases/download/${TFMASK_VERSION}/tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH}"
   TERRAFORM_URL: "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
+default:
+  image: alpine:${ALPINE_VERSION}
 
 cache:
   key: example-production
@@ -25,25 +29,21 @@ before_script:
   - terraform init
 
 stages:
-  - construct
   - test
   - build
   - deploy
   - post_deploy
 
-builder:
-  stage: construct
+validate:
+  stage: test
   image: docker:${DOCKER_VERSION}
   services:
-    - docker:${DOCKER_VERSION}
+    - docker:${DOCKER_VERSION}-dind
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker pull $RECENT_IMG || true
     - docker build -f docker/Dockerfile.validate --cache-from $RECENT_IMG --tag $RECENT_IMG .
-    - docker push $RECENT_IMG
+    - docker run -v $(pwd):/lint -w /lint $RECENT_IMG run -a
 
 init:
-  image: alpine:${ALPINE_VERSION}
   stage: test
   script:
     - terraform init
@@ -51,16 +51,7 @@ init:
     - terraform validate
     - rm sshkey.pub || true
 
-tf-hooks:
-  image: docker:${DOCKER_VERSION}
-  services:
-    - docker:${DOCKER_VERSION}-dind
-  stage: test
-  script:
-    - docker run -v $(pwd):/lint -w /lint pre-commit run -a
-
 plan:
-  image: alpine:${ALPINE_VERSION}
   stage: build
   script:
     - export	TF_VAR_cloudflare_api_key=${TF_VAR_cloudflare_api_key}
@@ -84,7 +75,6 @@ plan:
     - rm sshkey.pub || true
 
 apply:
-  image: alpine:${ALPINE_VERSION}
   stage: deploy
   environment:
     name: production
@@ -113,7 +103,6 @@ apply:
     - master
 
 docs:
-  image: alpine:${ALPINE_VERSION}
   stage: post_deploy
   variables:
     GITHUB_EVENT: ${GITHUB_EVENT} #generate-documentation
