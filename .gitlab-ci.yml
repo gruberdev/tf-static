@@ -1,5 +1,5 @@
 default:
-  image: hashicorp/terraform:0.15.2
+  image: alpine:latest
 
   cache:
     key: example-production
@@ -15,6 +15,8 @@ variables:
 #  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/example-production
 
 before_script:
+  - apk update && apk add sh bash
+  - bash
   - export	TF_VAR_cloudflare_api_key=${TF_VAR_cloudflare_api_key}
   - export	TF_VAR_cloudflare_email=${TF_VAR_cloudflare_email}
   - export	TF_VAR_domain_type=${TF_VAR_domain_type}
@@ -54,6 +56,12 @@ modules:
       && zip --version \
       && gzip --version \
       && brotli --version
+    - apk add --update git curl openssh && \
+    curl https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip > terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    echo "${TERRAFORM_SHA256SUM}  terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > terraform_${TERRAFORM_VERSION}_SHA256SUMS && \
+    sha256sum -cs terraform_${TERRAFORM_VERSION}_SHA256SUMS && \
+    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /bin && \
+    rm -f terraform_${TERRAFORM_VERSION}_linux_amd64.zip
     - terraform init
 
 validate:
@@ -73,7 +81,7 @@ apply:
   environment:
     name: production
   script:
-    - gitlab-terraform apply -no-color | tfmask
+    - terraform apply -no-color | tfmask
   when: manual
   only:
     - master
