@@ -56,7 +56,7 @@ plan:
     - export	TF_VAR_TFMASK_VALUES_REGEX=$TF_VAR_TFMASK_VALUES_REGEX
     - echo ${vultr_ssh_key} > sshkey.pub
     - wget -q ${TFMASK_URL} && chmod +x tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH} && mv tfmask_${TERRAFORM_OS}_${TERRAFORM_ARCH} /usr/local/bin/tfmask
-    - terraform plan -no-color #| tfmask
+    - terraform plan -no-color | tfmask
     - rm sshkey.pub || true
 
 apply:
